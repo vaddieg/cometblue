@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1952E0B02482FF5F00B0E741 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1952E0AF2482FF5F00B0E741 /* main.swift */; };
+		1952E0B82482FF7000B0E741 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1952E0B72482FF7000B0E741 /* CoreBluetooth.framework */; };
+		19670BF024852E6E00CA7840 /* CometBlueDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19670BEF24852E6E00CA7840 /* CometBlueDevice.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +27,10 @@
 /* Begin PBXFileReference section */
 		1952E0AC2482FF5F00B0E741 /* cometblue */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cometblue; sourceTree = BUILT_PRODUCTS_DIR; };
 		1952E0AF2482FF5F00B0E741 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		1952E0B72482FF7000B0E741 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		19670BEF24852E6E00CA7840 /* CometBlueDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CometBlueDevice.swift; sourceTree = "<group>"; };
+		19670BF124864A0B00CA7840 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		19670BF224864CCA00CA7840 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +38,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1952E0B82482FF7000B0E741 /* CoreBluetooth.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -41,8 +48,11 @@
 		1952E0A32482FF5F00B0E741 = {
 			isa = PBXGroup;
 			children = (
+				19670BF224864CCA00CA7840 /* LICENSE */,
+				19670BF124864A0B00CA7840 /* README.md */,
 				1952E0AE2482FF5F00B0E741 /* cometblue */,
 				1952E0AD2482FF5F00B0E741 /* Products */,
+				1952E0B62482FF7000B0E741 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,9 +67,18 @@
 		1952E0AE2482FF5F00B0E741 /* cometblue */ = {
 			isa = PBXGroup;
 			children = (
+				19670BEF24852E6E00CA7840 /* CometBlueDevice.swift */,
 				1952E0AF2482FF5F00B0E741 /* main.swift */,
 			);
 			path = cometblue;
+			sourceTree = "<group>";
+		};
+		1952E0B62482FF7000B0E741 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1952E0B72482FF7000B0E741 /* CoreBluetooth.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -120,6 +139,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19670BF024852E6E00CA7840 /* CometBlueDevice.swift in Sources */,
 				1952E0B02482FF5F00B0E741 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
