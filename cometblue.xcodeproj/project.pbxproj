@@ -10,6 +10,7 @@
 		1952E0B02482FF5F00B0E741 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1952E0AF2482FF5F00B0E741 /* main.swift */; };
 		1952E0B82482FF7000B0E741 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1952E0B72482FF7000B0E741 /* CoreBluetooth.framework */; };
 		19670BF024852E6E00CA7840 /* CometBlueDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19670BEF24852E6E00CA7840 /* CometBlueDevice.swift */; };
+		19A4C3302486A028004CABC3 /* cli.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A4C32F2486A027004CABC3 /* cli.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,7 @@
 		19670BEF24852E6E00CA7840 /* CometBlueDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CometBlueDevice.swift; sourceTree = "<group>"; };
 		19670BF124864A0B00CA7840 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		19670BF224864CCA00CA7840 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		19A4C32F2486A027004CABC3 /* cli.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = cli.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +71,7 @@
 			children = (
 				19670BEF24852E6E00CA7840 /* CometBlueDevice.swift */,
 				1952E0AF2482FF5F00B0E741 /* main.swift */,
+				19A4C32F2486A027004CABC3 /* cli.swift */,
 			);
 			path = cometblue;
 			sourceTree = "<group>";
@@ -139,6 +142,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19A4C3302486A028004CABC3 /* cli.swift in Sources */,
 				19670BF024852E6E00CA7840 /* CometBlueDevice.swift in Sources */,
 				1952E0B02482FF5F00B0E741 /* main.swift in Sources */,
 			);

@@ -9,7 +9,7 @@ Command-line tool for macOS for managing CometBlue, EUROprog, Cygonix and other 
 ### cometblue discover <options>
 ### cometblue [ get | set | backup | restore] <device_id> <options>
 ### Commands:
-discover			Scan for compatible BLE devices
+discover			Scan for compatible BLE devices to find out device_ids
 get				Read value(s) from device
 set				Write value(s) to device
 backup			Backups device settings to specified file
@@ -35,7 +35,7 @@ $ cometblue set AABBCC-5555-AAAA-DDEECC -k temperatures.manual 22
 Value is set for temperatures.manual
 
 ### Miscellanous
-Use 'auto' as device id to attemt connecting the nearest device
+Use 'auto' as device id to attemt connecting the nearest (highest signal) device
 Use 'cometblue [device_id] get -f json' to discover keypath structure
 Set for 'deviceDate' with zero arg sets the current date time
 Pin change is not supported

@@ -3,7 +3,7 @@
 //  cometblue
 //
 //  Created by vad on 5/30/20.
-//  Copyright © 2020 vaddieg. All rights reserved.
+//  Copyright © 2020 Vadym Zimin. All rights reserved.
 //
 
 import Foundation
