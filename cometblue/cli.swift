@@ -23,6 +23,8 @@ class CLIProvider : NSObject, CBCentralManagerDelegate, CometBlueDeviceDelegate 
 	var options = [String:String]()
 	var writeValue : String?
 	
+	// MARK: - initialize
+	
 	init(with args:[String]) throws {
 		guard args.count > 1 else {
 			throw CLIError.genericError
@@ -72,10 +74,13 @@ class CLIProvider : NSObject, CBCentralManagerDelegate, CometBlueDeviceDelegate 
 		super.init()
 	}
 	
+	// MARK: CBCentralManagerDelegate
 	
 	func centralManagerDidUpdateState(_ central: CBCentralManager) {
 		
 	}
+	
+	// MARK: CometBlueDeviceDelegate
 	
 	func cometBlue(_ device: CometBlueDevice, discoveredCharacteristics chars: [CometBlueDevice.Characteristics]) {
 		
@@ -94,11 +99,11 @@ class CLIProvider : NSObject, CBCentralManagerDelegate, CometBlueDeviceDelegate 
 	}
 	
 	static let validOptions = [
-		Command.discover : ["-t", "-s"],
-		Command.get : ["-p", "-k", "-f"],
-		Command.set : ["-p", "-k", "-f"],
-		Command.backup : ["-p", "-o"],
-		Command.restore : ["-p", "-i"]
+		Command.discover :	["-t", "-s"],
+		Command.get : 		["-p", "-k", "-f"],
+		Command.set : 		["-p", "-k", "-f"],
+		Command.backup : 	["-p", "-o"],
+		Command.restore : 	["-p", "-i"]
 	]
 	
 	public enum CLIError : Error {
