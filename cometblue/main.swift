@@ -32,6 +32,7 @@ class ScanDelegate : NSObject, CBCentralManagerDelegate, CometBlueDeviceDelegate
 		
 		let encoder = JSONEncoder()
 		encoder.outputFormatting = .prettyPrinted
+		encoder.dateEncodingStrategy = .iso8601
 		let jsonData = try! encoder.encode(device)
 		let jsonString = String(data: jsonData, encoding: .utf8)!
 		print(jsonString)
