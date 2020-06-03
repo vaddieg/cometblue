@@ -231,7 +231,26 @@ class CLIProvider : NSObject, CBCentralManagerDelegate, CometBlueDeviceDelegate 
 			}
 		}
 		else if keyPath.hasPrefix("temperatures.") {
-			
+			let subKey = keyPath.components(separatedBy: ".").last!
+			//if let key = CometBlueDevice.Temperatures.CodingKeys(rawValue: subKey) {} fuckit
+			switch subKey {
+			case "offset":
+				device!.temperatures!.current = Double(val)!
+			case "manual":
+				device!.temperatures!.manual = Double(val)!
+			case "targetHi":
+				device!.temperatures!.targetHi = Double(val)!
+			case "targetLow":
+				device!.temperatures!.targetLow = Double(val)!
+			case "windowDetection" :
+				device!.temperatures!.windowDetection = Int(val)!
+			case "windowMinutes" :
+				device!.temperatures!.windowMinutes = Int(val)!
+//			case "current":
+//				device!.temperatures!.current = Double(val)! 
+			default:
+				interrupt(err: CLIError.wrongOptionValue(opt: "\(keyPath)", val: "(read-only or not exist)")); return
+			}
 		}
 	}
 	
@@ -368,6 +387,7 @@ class CLIProvider : NSObject, CBCentralManagerDelegate, CometBlueDeviceDelegate 
 				let jsonString = String(data: jsonData, encoding: .utf8)!
 				print(jsonString)
 				interrupt(err: nil)
+				return;
 			}
 			
 			// NSDict can do dynamic keypaths
@@ -389,18 +409,22 @@ class CLIProvider : NSObject, CBCentralManagerDelegate, CometBlueDeviceDelegate 
 				}
 			}
 			
-			
 			interrupt(err: nil)
 		}
-		
 		
 		interrupt(err: nil)
 	}
 	
+	/// .restore or .set finished
 	func cometBlueFinishedWriting(_ device: CometBlueDevice) {
-		
+		if command == .restore { print("Restored successfully to \(deviceID!)") }
 		interrupt(err: nil)
 	}
+	
+	func comentBlue(_ device:CometBlueDevice, gotError err:Error?) {
+		interrupt(err: err ?? CLIError.bluetoothError)
+	}
+	
 	
 	// MARK:-
 	
@@ -449,7 +473,7 @@ class CLIProvider : NSObject, CBCentralManagerDelegate, CometBlueDeviceDelegate 
 				case .noValueToWrite:			return "Specify value to write"
 				case .bluetoothError:			return "Bluetooth is unavailable"
 				case .timeoutError(let time):	return "Failed to connect in \(time) seconds"
-				case .unknownKeypath(let kp):	return "Unknown keypath \(kp). Try 'get ... -k .' to discover structure"
+				case .unknownKeypath(let kp):	return "Unknown keypath '\(kp)' Try 'get ... -k .' to discover structure"
 				case .wrongOptionValue(let opt, let val): return "Bad value '\(val)' for option \(opt)"
 				//default:						return "Unknown Error"
 				}

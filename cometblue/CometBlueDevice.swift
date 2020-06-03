@@ -14,6 +14,7 @@ public protocol CometBlueDeviceDelegate : class {
 	func cometBlueAuthorized(_ device:CometBlueDevice) //from that point you can read and write
 	func cometBlueFinishedReading(_ device:CometBlueDevice)
 	func cometBlueFinishedWriting(_ device:CometBlueDevice)
+	func comentBlue(_ device:CometBlueDevice, gotError err:Error?)
 }
 
 /// Supports Codable for backup/restore purposes
@@ -45,7 +46,7 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 	
 	// what to read and what to write
 	let charsToRead = [Characteristics.battery, .dateTime, .temperatures, .status, .day, .holyday]
-	let charsToWrite = [Characteristics.dateTime, .temperatures, .status, .day, .holyday]
+	let charsToWrite = [Characteristics.status, .day, .holyday, .temperatures, .dateTime]
 	
 	//detect batch RW finish to trigger delegate
 	var readsLeft = Set<Characteristics>()
@@ -94,7 +95,7 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 					buf[3] = UInt8(calendar.component(.month, from: date))
 					buf[4] = UInt8(calendar.component(.year, from: date) - 2000)
 					let data = Data(bytes: buf, count: buf.count)
-					self.peripheral!.writeValue(data, for:discoveredCharacs[.temperatures]!, type:.withResponse)
+					self.peripheral!.writeValue(data, for:discoveredCharacs[.dateTime]!, type:.withResponse)
 					deviceDate = date
 					
 				case .temperatures:
@@ -121,7 +122,7 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 	}
 	
 	private func reportCommError(err: Error?) {
-		print("Error communicating \(peripheral!) error: \(err != nil ? String(describing: err!) : "unknown")")
+		delegate?.comentBlue(self, gotError: err)
 	}
 	
 	//MARK: - CBPeripheral delegate -
@@ -178,7 +179,7 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 				readParameters(nil)
 			}
 		default:
-			print("Write success for: \(internChar)")
+			debugPrint("Write success for: \(internChar)")
 			writesLeft.remove(internChar)
 			if writesLeft.isEmpty {
 				delegate?.cometBlueFinishedWriting(self)
