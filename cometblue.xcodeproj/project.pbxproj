@@ -33,6 +33,10 @@
 		19670BF124864A0B00CA7840 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; lineEnding = 0; path = README.md; sourceTree = "<group>"; };
 		19670BF224864CCA00CA7840 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		19A4C32F2486A027004CABC3 /* cli.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = cli.swift; sourceTree = "<group>"; };
+		19A4C332248815CC004CABC3 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		19A4C334248819AB004CABC3 /* LinuxMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinuxMain.swift; sourceTree = "<group>"; };
+		19A4C336248819AB004CABC3 /* XCTestManifests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTestManifests.swift; sourceTree = "<group>"; };
+		19A4C337248819AB004CABC3 /* cometblueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = cometblueTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,7 +56,9 @@
 			children = (
 				19670BF224864CCA00CA7840 /* LICENSE */,
 				19670BF124864A0B00CA7840 /* README.md */,
-				1952E0AE2482FF5F00B0E741 /* cometblue */,
+				19A4C332248815CC004CABC3 /* Package.swift */,
+				19A4C33124881525004CABC3 /* Sources */,
+				19A4C333248819AB004CABC3 /* Tests */,
 				1952E0AD2482FF5F00B0E741 /* Products */,
 				1952E0B62482FF7000B0E741 /* Frameworks */,
 			);
@@ -82,6 +88,32 @@
 				1952E0B72482FF7000B0E741 /* CoreBluetooth.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		19A4C33124881525004CABC3 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				1952E0AE2482FF5F00B0E741 /* cometblue */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		19A4C333248819AB004CABC3 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				19A4C334248819AB004CABC3 /* LinuxMain.swift */,
+				19A4C335248819AB004CABC3 /* cometblueTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		19A4C335248819AB004CABC3 /* cometblueTests */ = {
+			isa = PBXGroup;
+			children = (
+				19A4C336248819AB004CABC3 /* XCTestManifests.swift */,
+				19A4C337248819AB004CABC3 /* cometblueTests.swift */,
+			);
+			path = cometblueTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
