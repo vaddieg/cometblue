@@ -40,11 +40,11 @@ Options:
  Set OK  
  ```
  ### Miscellanous
- Use 'auto' as device id to attemt connecting the nearest (highest signal) device
- Use 'cometblue [device_id] get -f json' to discover keypath structure
- Set for 'deviceDate' with zero arg sets the current date time
- Pin change is not supported
- Tool is able to backup/restore day/holiday whole schedules, but editing isn't (yet?) supported 
+ Use 'auto' as device id to attemt connecting the nearest (highest signal) device  
+ Use 'cometblue [device_id] get -f json' to discover keypath structure  
+ Set for 'deviceDate' with zero arg sets the current date time  
+ Pin change is not supported  
+ Tool is able to backup/restore day/holiday whole schedules, but editing isn't (yet?) supported  
 
 ## Credits
 https://github.com/im-0/cometblue used a reference to discover device APIs
