@@ -19,10 +19,13 @@ public protocol CometBlueDeviceDelegate : class {
 public class CometBlueDevice : NSObject, CBPeripheralDelegate, Encodable {
 
 	/// Properties
-	var batteryStatus : UInt8 = 0
+	var batteryStatus : UInt8?
 	var deviceDate : Date?
 	var status : StatusOptions?
 	var temperatures : Temperatures?
+	// details not supported
+	var dayBlob : Data?
+	var holydayBllob : Data?
 	
 	/// Cache of discovered CBCharacteristic objects
 	private var discoveredCharacs = [Characteristics : CBCharacteristic]()
@@ -52,7 +55,7 @@ public class CometBlueDevice : NSObject, CBPeripheralDelegate, Encodable {
 		self.pin = pin
 		
 		if let p = periph {
-			print("Connected to \(p.identifier)")
+			print("Connected to: \(p.identifier)")
 			p.delegate = self
 			p.discoverServices([CBUUID(string: CometBlueDevice.discoveryUUID)])
 		}
@@ -70,7 +73,7 @@ public class CometBlueDevice : NSObject, CBPeripheralDelegate, Encodable {
 		}
 	}
 	
-	func saveParamers(_ params:[Characteristics]?) {
+	func writeParamers(_ params:[Characteristics]?) {
 		assert(discoveredCharacs.count > 0, "characteristics not yer discovered?")
 		syncQueue.sync {
 			writesLeft.removeAll()
@@ -98,6 +101,15 @@ public class CometBlueDevice : NSObject, CBPeripheralDelegate, Encodable {
 					let bytes = temperatures!.toByteArray()
 					let data = Data(bytes: bytes, count: bytes.count)
 					self.peripheral!.writeValue(data, for:discoveredCharacs[.temperatures]!, type:.withResponse)
+				case .status:
+					//var buf = Array<UInt8>(repeating: 0, count: 4)
+					let data = Data(bytes: &status, count: 4)
+					let subdata = data.subdata(in: 0..<3)
+					debugPrint("Resulting subdata \(subdata.count)")
+					self.peripheral!.writeValue(subdata, for:discoveredCharacs[.status]!, type:.withResponse)
+					//data.copyBytes(to: &buf, count: 3)
+					//let intb = UnsafeRawPointer(buf).assumingMemoryBound(to: UInt.self).pointee.littleEndian
+					//status = StatusOptions(rawValue: intb)
 					
 				default:
 					print("saving not yet supported for \(writeChar)")
@@ -177,23 +189,25 @@ public class CometBlueDevice : NSObject, CBPeripheralDelegate, Encodable {
 		guard let data = char.value, error == nil else {
 			reportCommError(err: error); return
 		}
-						
+							
+		// Try mapping to ownt characteristics type
 		guard let internChar = Characteristics(rawValue: char.uuid.uuidString.lowercased()) else {
-			print("unknown characteristic"); return
+			debugPrint("unknown characteristic"); return
 		}
 		
 		
 		switch internChar {
 		case .battery:
-			data.copyBytes(to: &batteryStatus, count: 1)
-			print("parsed battery \(batteryStatus)")
+			batteryStatus = 0
+			data.copyBytes(to: &(batteryStatus!), count: 1)
+			debugPrint("parsed battery \(batteryStatus!)")
 			
 		case .status:
 			var buf = Array<UInt8>(repeating: 0, count: 4)
 			data.copyBytes(to: &buf, count: 3)
 			let intb = UnsafeRawPointer(buf).assumingMemoryBound(to: UInt.self).pointee.littleEndian
 			status = StatusOptions(rawValue: intb)
-			print("current opts \(status!)")
+			debugPrint("current opts \(status!)")
 		case .dateTime:
 			var buf = Array<UInt8>(repeating: 0, count: 5)
 			data.copyBytes(to: &buf, count: 5)
@@ -207,13 +221,13 @@ public class CometBlueDevice : NSObject, CBPeripheralDelegate, Encodable {
 											minute: Int(buf[0]),
 											second: 0)
 			deviceDate = calendar.date(from: components)
-			print("Parsed date \(deviceDate!)")
+			debugPrint("Parsed date \(deviceDate!)")
 		
 		case .temperatures:
 			var buf = Array<UInt8>(repeating: 0, count: 7)
 			data.copyBytes(to: &buf, count: 7)
 			temperatures = Temperatures(byteArray: buf)
-			print("Parsed temps: \(temperatures!)")
+			debugPrint("Parsed temps: \(temperatures!)")
 			
 
 			
@@ -313,7 +327,13 @@ extension CometBlueDevice {
 		}
 	}
 	
+	//MARK: JSON coding
+	
 	private enum CodingKeys: String, CodingKey {
-		case batteryStatus, deviceDate, temperatures, status
+		case batteryStatus, deviceDate, temperatures, status//, dayBlob, holydayBlob
 	}
+	
+//	public func encode(to encoder: Encoder) {
+//
+//	}
 }
