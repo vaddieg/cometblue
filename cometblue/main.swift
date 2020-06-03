@@ -18,6 +18,7 @@ extension Data {
 }
 func printUsage() {
 	let text = """
+	cometblue tool v0.1
 	## Usage
 	### cometblue discover <options>
 	### cometblue [ get | set | backup | restore] <device_id> <options>
