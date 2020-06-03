@@ -6,9 +6,9 @@ Command-line tool for macOS for managing CometBlue, EUROprog, Cygonix and other 
 <will appear on homebrew>
 
  ## Usage
- ### cometblue discover <options>
- ### cometblue [ get | set | backup | restore] <device_id> <options>
- ### Commands:
+ #### cometblue discover <options>
+ #### cometblue [ get | set | backup | restore] <device_id> <options>
+ #### Commands:
  discover			Scan for compatible BLE devices to find out device_ids
  get				Read value(s) from device
  set				Write value(s) to device
@@ -27,10 +27,13 @@ Command-line tool for macOS for managing CometBlue, EUROprog, Cygonix and other 
  $ cometblue discover -s -75
  AABBCC-5555-AAAA-DDEECC signal:-60
  CCBBAA-2222-AAAA-FFFFFFF signal:-65
+ 
  $ cometblue get AABBCC-5555-AAAA-DDEECC -k temperatures.targetHi
  22.5
+ 
  $ cometblue get AABBCC-5555-AAAA-DDEECC -k temperatures -f json
  {"offset" : 1, "manual" : 15, "targetLow" : 18, "targetHi" : 22.5, "current" : 18}
+ 
  $ cometblue set AABBCC-5555-AAAA-DDEECC -k status.flags.childlock true
  Set OK
 

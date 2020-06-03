@@ -30,7 +30,7 @@
 		1952E0AF2482FF5F00B0E741 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		1952E0B72482FF7000B0E741 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		19670BEF24852E6E00CA7840 /* CometBlueDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CometBlueDevice.swift; sourceTree = "<group>"; };
-		19670BF124864A0B00CA7840 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		19670BF124864A0B00CA7840 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; lineEnding = 0; path = README.md; sourceTree = "<group>"; };
 		19670BF224864CCA00CA7840 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		19A4C32F2486A027004CABC3 /* cli.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = cli.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
