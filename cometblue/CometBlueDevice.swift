@@ -16,7 +16,8 @@ public protocol CometBlueDeviceDelegate : class {
 	func cometBlueFinishedWriting(_ device:CometBlueDevice)
 }
 
-public class CometBlueDevice : NSObject, CBPeripheralDelegate, Encodable {
+/// Supports Codable for backup/restore purposes
+public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 
 	/// Properties
 	var batteryStatus : UInt8?
@@ -25,7 +26,7 @@ public class CometBlueDevice : NSObject, CBPeripheralDelegate, Encodable {
 	var temperatures : Temperatures?
 	// details not supported
 	var dayBlob : Data?
-	var holydayBllob : Data?
+	var holydayBlob : Data?
 	
 	/// Cache of discovered CBCharacteristic objects
 	private var discoveredCharacs = [Characteristics : CBCharacteristic]()
@@ -43,8 +44,8 @@ public class CometBlueDevice : NSObject, CBPeripheralDelegate, Encodable {
 	}
 	
 	// what to read and what to write
-	let charsToRead = [Characteristics.battery, .dateTime, .temperatures, .status]
-	let charsToWrite = [Characteristics.dateTime, .temperatures]
+	let charsToRead = [Characteristics.battery, .dateTime, .temperatures, .status, .day, .holyday]
+	let charsToWrite = [Characteristics.dateTime, .temperatures, .status, .day, .holyday]
 	
 	//detect batch RW finish to trigger delegate
 	var readsLeft = Set<Characteristics>()
@@ -82,8 +83,7 @@ public class CometBlueDevice : NSObject, CBPeripheralDelegate, Encodable {
 				writesLeft.insert(writeChar)
 				switch writeChar {
 				case .dateTime:
-					print("sync time with this computer..")
-					let date = Date()
+					let date = Date() /// ignore, use only current local date
 					var calendar = Calendar(identifier: .gregorian)
 					calendar.timeZone = TimeZone(secondsFromGMT: 0)!
 					
@@ -102,15 +102,17 @@ public class CometBlueDevice : NSObject, CBPeripheralDelegate, Encodable {
 					let data = Data(bytes: bytes, count: bytes.count)
 					self.peripheral!.writeValue(data, for:discoveredCharacs[.temperatures]!, type:.withResponse)
 				case .status:
-					//var buf = Array<UInt8>(repeating: 0, count: 4)
 					let data = Data(bytes: &status, count: 4)
 					let subdata = data.subdata(in: 0..<3)
-					debugPrint("Resulting subdata \(subdata.count)")
 					self.peripheral!.writeValue(subdata, for:discoveredCharacs[.status]!, type:.withResponse)
-					//data.copyBytes(to: &buf, count: 3)
-					//let intb = UnsafeRawPointer(buf).assumingMemoryBound(to: UInt.self).pointee.littleEndian
-					//status = StatusOptions(rawValue: intb)
-					
+				case .day:
+					if let dayData = dayBlob {
+						self.peripheral!.writeValue(dayData, for:discoveredCharacs[.day]!, type:.withResponse)
+					}
+				case .holyday:
+					if let holyData = holydayBlob {
+						self.peripheral!.writeValue(holyData, for:discoveredCharacs[.holyday]!, type:.withResponse)
+					}
 				default:
 					print("saving not yet supported for \(writeChar)")
 				}
@@ -162,7 +164,6 @@ public class CometBlueDevice : NSObject, CBPeripheralDelegate, Encodable {
 		guard error == nil else {
 			reportCommError(err: error); return
 		}
-		print("write success")
 		
 		guard let internChar = Characteristics(rawValue: char.uuid.uuidString.lowercased()) else {
 			print("unknown characteristic"); return
@@ -229,7 +230,12 @@ public class CometBlueDevice : NSObject, CBPeripheralDelegate, Encodable {
 			temperatures = Temperatures(byteArray: buf)
 			debugPrint("Parsed temps: \(temperatures!)")
 			
-
+		case .day:
+			dayBlob = data
+			debugPrint("Read day as blob \(data)")
+		case .holyday:
+			holydayBlob = data
+			debugPrint("Read holyday as blob \(data)")
 			
 		default:
 			print("Unhandled:"+data.hexDescription)
@@ -247,9 +253,9 @@ public class CometBlueDevice : NSObject, CBPeripheralDelegate, Encodable {
 // MARK: - inner types
 
 extension CometBlueDevice {
-	/// Comet Blue, EUROprog, other compatible devices can be uniquely discovered w/ this ID
+	/// Comet Blue, EUROtronic, other compatible devices can be uniquely discovered w/ this ID
 	public static let discoveryUUID = "47e9ee00-47e9-11e4-8939-164230d1df67"
-	//static let stdDeviceInfoService = "180a"
+	public static let standardInfoUUID = "180a" // to read GATT-standard manufacturer, fmw. version, etc.
 	public enum Characteristics : String, CaseIterable { //Unfortunatelly enum of CBUUIDs isn't possible
 		case sendPin = 		"47e9ee30-47e9-11e4-8939-164230d1df67"
 		case day = 			"47e9ee10-47e9-11e4-8939-164230d1df67" //not yet supported
@@ -265,7 +271,7 @@ extension CometBlueDevice {
 		var cbuuid : CBUUID { return CBUUID(string: self.rawValue) }
 	}
 	
-	struct StatusOptions : OptionSet, Encodable {
+	struct StatusOptions : OptionSet, Codable {
 		let rawValue: UInt
 		
 		static let manualMode = StatusOptions(rawValue: 1)
@@ -278,23 +284,41 @@ extension CometBlueDevice {
 		static let tempSatisfied = StatusOptions(rawValue: 1 << 19)
 		
 		private enum CodingKeys: String, CodingKey {
+			case rawValue, flags
+		}
+		
+		/// Only for readability purposes
+		enum FlagCodingKeys : String, CodingKey {
 			case manualMode, antifrostActive, childlock,motorMoving
 			case notReady, adapting, lowBattery, tempSatisfied
 		}
+		
 		func encode(to encoder: Encoder) throws {
 			var container = encoder.container(keyedBy: CodingKeys.self)
-			try container.encode(self.contains(.manualMode), forKey: .manualMode)
-			try container.encode(self.contains(.antifrostActive), forKey: .antifrostActive)
-			try container.encode(self.contains(.childlock), forKey: .childlock)
-			try container.encode(self.contains(.motorMoving), forKey: .motorMoving)
-			try container.encode(self.contains(.notReady), forKey: .notReady)
-			try container.encode(self.contains(.adapting), forKey: .adapting)
-			try container.encode(self.contains(.lowBattery), forKey: .lowBattery)
-			try container.encode(self.contains(.tempSatisfied), forKey: .tempSatisfied)
+			try container.encode(rawValue, forKey: .rawValue)
+			
+			var altcont = container.nestedContainer(keyedBy: FlagCodingKeys.self, forKey: .flags)
+			try altcont.encode(self.contains(.manualMode), forKey: .manualMode)
+			try altcont.encode(self.contains(.antifrostActive), forKey: .antifrostActive)
+			try altcont.encode(self.contains(.childlock), forKey: .childlock)
+			try altcont.encode(self.contains(.motorMoving), forKey: .motorMoving)
+			try altcont.encode(self.contains(.notReady), forKey: .notReady)
+			try altcont.encode(self.contains(.adapting), forKey: .adapting)
+			try altcont.encode(self.contains(.lowBattery), forKey: .lowBattery)
+			try altcont.encode(self.contains(.tempSatisfied), forKey: .tempSatisfied)
+		}
+		
+		init(from decoder: Decoder) throws {
+			let container = try decoder.container(keyedBy: CodingKeys.self)
+			rawValue = try container.decode(UInt.self, forKey: .rawValue)
+		}
+		
+		init(rawValue: UInt) {
+			self.rawValue = rawValue
 		}
 	}
 	
-	struct Temperatures : Encodable {
+	struct Temperatures : Codable {
 		var current = 0.0
 		var manual = 0.0
 		var targetLow = 0.0
@@ -330,10 +354,44 @@ extension CometBlueDevice {
 	//MARK: JSON coding
 	
 	private enum CodingKeys: String, CodingKey {
-		case batteryStatus, deviceDate, temperatures, status//, dayBlob, holydayBlob
+		case batteryStatus, deviceDate, temperatures, status, dayBlob, holydayBlob
 	}
 	
-//	public func encode(to encoder: Encoder) {
-//
-//	}
+	public func encode(to encoder: Encoder) throws {
+		var container = encoder.container(keyedBy: CodingKeys.self)
+		
+		if batteryStatus != nil { try container.encode(batteryStatus, forKey: .batteryStatus) }
+		if deviceDate != nil { try container.encode(deviceDate, forKey: .deviceDate)  }
+		if temperatures != nil { try container.encode(temperatures, forKey: .temperatures) }
+		if status != nil { try container.encode(status, forKey: .status) }
+		
+		if let dayData = dayBlob {
+			let base64rep = dayData.base64EncodedString()
+			try container.encode(base64rep, forKey: .dayBlob)
+		}
+		
+		if let holyData = holydayBlob {
+			let base64rep = holyData.base64EncodedString()
+			try container.encode(base64rep, forKey: .holydayBlob)
+		}
+		
+	}
+	
+	convenience public init(from decoder: Decoder) throws {
+		self.init()
+		let container = try decoder.container(keyedBy: CodingKeys.self)
+		
+		batteryStatus = try container.decode(UInt8.self, forKey: .batteryStatus)
+		deviceDate = try container.decode(Date.self, forKey: .deviceDate)
+		temperatures = try container.decode(Temperatures.self, forKey: .temperatures)
+		status = try container.decode(StatusOptions.self, forKey: .status)
+		
+		if let dayStr = try? container.decode(String.self, forKey: .dayBlob) {
+			dayBlob = Data(base64Encoded: dayStr)
+		}
+		
+		if let holyStr = try? container.decode(String.self, forKey: .holydayBlob) {
+			holydayBlob = Data(base64Encoded: holyStr)
+		}
+	}
 }
