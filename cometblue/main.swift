@@ -31,7 +31,7 @@ func printUsage() {
 	-t [timeout]		Timeout for 'discover' command, default is 60s
 	-s [threshold]		Signal level threshold for 'discover', default = -80dB
 	-p [pin]			Pin to access the device, default = 0
-	-k [key.path]		Keypath of the value for reading or writing, default for 'get' command is json root object
+	-k [key.path]		Keypath of the value for reading or writing, default is root "."
 	-f [human | json] 	Specifies human readable or json as output format for 'get' command, default is 'human'
 	-o [path]			Output file path for 'backup' command, default is ./backup.json
 	-i [path]			Input file path for 'restore' command, default is ./backup.json
@@ -44,8 +44,8 @@ func printUsage() {
 	22.5
 	$ cometblue get AABBCC-5555-AAAA-DDEECC -k temperatures -f json
 	{"offset" : 1, "manual" : 15, "targetLow" : 18, "targetHi" : 22.5, "current" : 18}
-	$ cometblue set AABBCC-5555-AAAA-DDEECC -k temperatures.manual 22
-	Value is set for temperatures.manual
+	$ cometblue set AABBCC-5555-AAAA-DDEECC -k status.flags.childlock true
+	Set OK
 
 	### Miscellanous
 	Use 'auto' as device id to attemt connecting the nearest (highest signal) device

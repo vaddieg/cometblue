@@ -73,7 +73,7 @@ class CLIProvider : NSObject, CBCentralManagerDelegate, CometBlueDeviceDelegate 
 		let specified = Set<String>(options.keys)
 		let unknown = specified.subtracting(allowed)
 		guard unknown.count == 0 else {
-			throw CLIError.unknownOption(opt: "\(unknown.randomElement()!) not suported for \(command.rawValue)")
+			throw CLIError.unsupportedOption(opt: unknown.randomElement()!, cmd:command.rawValue)
 		}
 		
 		// value for write ops
@@ -457,6 +457,7 @@ class CLIProvider : NSObject, CBCentralManagerDelegate, CometBlueDeviceDelegate 
 		case unknownCommand(cmd: String)
 		case missingDeviceArg
 		case unknownOption(opt: String)
+		case unsupportedOption(opt: String, cmd:String)
 		case wrongOptionValue(opt: String, val: String)
 		case noValueToWrite
 		case bluetoothError
@@ -470,6 +471,7 @@ class CLIProvider : NSObject, CBCentralManagerDelegate, CometBlueDeviceDelegate 
 				case .unknownCommand(let cmd):	return "Unknown command \(cmd)"
 				case .missingDeviceArg:			return "Device_id is not specified"
 				case .unknownOption(let opt):	return "Unknown option \(opt)"
+				case .unsupportedOption(let opt, let cmd): return "Option \(opt) is not supported by \(cmd)"
 				case .noValueToWrite:			return "Specify value to write"
 				case .bluetoothError:			return "Bluetooth is unavailable"
 				case .timeoutError(let time):	return "Failed to connect in \(time) seconds"
