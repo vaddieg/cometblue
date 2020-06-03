@@ -9,19 +9,19 @@ Command-line tool for macOS for managing CometBlue, EUROprog, Cygonix and other 
  #### cometblue discover <options>
  #### cometblue [ get | set | backup | restore] <device_id> <options>
  #### Commands:
- discover			Scan for compatible BLE devices to find out device_ids
- get				Read value(s) from device
- set				Write value(s) to device
- backup			Backups device settings to specified file
- restore			Restores device settings from specified file
+ * discover			Scan for compatible BLE devices to find out device_ids
+ * get				Read value(s) from device
+ * set				Write value(s) to device
+ * backup			Backups device settings to specified file
+ * restore			Restores device settings from specified file
  ### Options:
- -t [timeout]		Timeout for 'discover' command, default is 60s
- -s [threshold]		Signal level threshold for 'discover', default = -80dB
- -p [pin]			Pin to access the device, default = 0
- -k [key.path]		Keypath of the value for reading or writing, default is root "."
- -f [human | json] 	Specifies human readable or json as output format for 'get' command, default is 'human'
- -o [path]			Output file path for 'backup' command, default is ./backup.json
- -i [path]			Input file path for 'restore' command, default is ./backup.json
+ * -t [timeout]		Timeout for 'discover' command, default is 60s
+ * -s [threshold]		Signal level threshold for 'discover', default = -80dB
+ * -p [pin]			Pin to access the device, default = 0
+ * -k [key.path]		Keypath of the value for reading or writing, default is root "."
+ * -f [human | json] 	Specifies human readable or json as output format for 'get' command, default is 'human'
+ * -o [path]			Output file path for 'backup' command, default is ./backup.json
+ * -i [path]			Input file path for 'restore' command, default is ./backup.json
 
  ### Examples:
  $ cometblue discover -s -75
