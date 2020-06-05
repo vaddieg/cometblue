@@ -9,6 +9,18 @@
 import Foundation
 import CoreBluetooth
 
+/// Shitty debug NSLog-like function
+func DLog(_ items: Any ..., separator: String = " ", terminator: String = "\n") {
+	#if DEBUG
+	print(Date(),": ", terminator:"")
+	for item in items {
+		print(item, terminator:"")
+		print(separator, terminator:"")
+	}
+	print("", terminator:terminator)
+	#endif
+}
+
 public protocol CometBlueDeviceDelegate : class {
 	func cometBlue(_ device:CometBlueDevice, discoveredCharacteristics chars:[CometBlueDevice.Characteristics])
 	func cometBlueAuthorized(_ device:CometBlueDevice) //from that point you can read and write
@@ -25,11 +37,11 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 	var deviceDate : Date?
 	var status : StatusOptions?
 	var temperatures : Temperatures?
-	// details not supported
+	/// Properties w/ no details supported
 	var dayBlob : Data?
 	var holydayBlob : Data?
 	
-	/// Cache of discovered CBCharacteristic objects
+	/// Access CBCharacteristic objects by own enum type
 	private var discoveredCharacs = [Characteristics : CBCharacteristic]()
 	private	var pin = UInt(0);
 	
@@ -52,6 +64,7 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 	var readsLeft = Set<Characteristics>()
 	var writesLeft = Set<Characteristics>()
 	
+	/// Main entry
 	public func linkToConnectedPeripheral(_ periph : CBPeripheral?, pin: UInt = 0) {
 		self.peripheral = periph
 		self.pin = pin
@@ -59,6 +72,7 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 		if let p = periph {
 			print("Connected to: \(p.identifier)")
 			p.delegate = self
+			DLog("discovering services")
 			p.discoverServices([CBUUID(string: CometBlueDevice.discoveryUUID)])
 		}
 	}
@@ -69,8 +83,11 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 			readsLeft.removeAll()
 			let scope = params ?? charsToRead
 			for readChar in scope {
+				guard let cbChar = discoveredCharacs[readChar] else {
+					delegate?.comentBlue(self, gotError: DeviceError.notDiscovered(char: readChar)); return
+				}
 				readsLeft.insert(readChar)
-				peripheral?.readValue(for: discoveredCharacs[readChar]!)
+				peripheral?.readValue(for: cbChar)
 			}
 		}
 	}
@@ -81,6 +98,9 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 			writesLeft.removeAll()
 			let scope = params ?? charsToWrite
 			for writeChar in scope {
+				guard let cbChar = discoveredCharacs[writeChar] else {
+					delegate?.comentBlue(self, gotError: DeviceError.notDiscovered(char: writeChar)); return
+				}
 				writesLeft.insert(writeChar)
 				switch writeChar {
 				case .dateTime:
@@ -95,24 +115,24 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 					buf[3] = UInt8(calendar.component(.month, from: date))
 					buf[4] = UInt8(calendar.component(.year, from: date) - 2000)
 					let data = Data(bytes: buf, count: buf.count)
-					self.peripheral!.writeValue(data, for:discoveredCharacs[.dateTime]!, type:.withResponse)
+					self.peripheral!.writeValue(data, for:cbChar, type:.withResponse)
 					deviceDate = date
 					
 				case .temperatures:
 					let bytes = temperatures!.toByteArray()
 					let data = Data(bytes: bytes, count: bytes.count)
-					self.peripheral!.writeValue(data, for:discoveredCharacs[.temperatures]!, type:.withResponse)
+					self.peripheral!.writeValue(data, for:cbChar, type:.withResponse)
 				case .status:
 					let data = Data(bytes: &status, count: 4)
 					let subdata = data.subdata(in: 0..<3)
-					self.peripheral!.writeValue(subdata, for:discoveredCharacs[.status]!, type:.withResponse)
+					self.peripheral!.writeValue(subdata, for:cbChar, type:.withResponse)
 				case .day:
 					if let dayData = dayBlob {
-						self.peripheral!.writeValue(dayData, for:discoveredCharacs[.day]!, type:.withResponse)
+						self.peripheral!.writeValue(dayData, for:cbChar, type:.withResponse)
 					}
 				case .holyday:
 					if let holyData = holydayBlob {
-						self.peripheral!.writeValue(holyData, for:discoveredCharacs[.holyday]!, type:.withResponse)
+						self.peripheral!.writeValue(holyData, for:cbChar, type:.withResponse)
 					}
 				default:
 					print("saving not yet supported for \(writeChar)")
@@ -128,10 +148,10 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 	//MARK: - CBPeripheral delegate -
 	
 	public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-		guard let svcs = peripheral.services, svcs.count == 1 else {
+		guard let svcs = peripheral.services, error == nil && svcs.count == 1 else {
 			reportCommError(err: error); return
 		}
-		
+		DLog("services discovered")
 		discoveredCharacs.removeAll()
 		let charsWithPin = [Characteristics.sendPin] + charsToRead
 		let uuidsToRead = charsWithPin.map { $0.cbuuid }
@@ -143,6 +163,7 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 			reportCommError(err: error); return
 		}
 		
+		DLog("characteristics discovered")
 		// Save all chars to dict
 		for char in chars {
 			if let charID = Characteristics(rawValue: char.uuid.uuidString.lowercased()) {
@@ -179,7 +200,7 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 				readParameters(nil)
 			}
 		default:
-			debugPrint("Write success for: \(internChar)")
+			DLog("Write success for: \(internChar)")
 			writesLeft.remove(internChar)
 			if writesLeft.isEmpty {
 				delegate?.cometBlueFinishedWriting(self)
@@ -194,7 +215,7 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 							
 		// Try mapping to ownt characteristics type
 		guard let internChar = Characteristics(rawValue: char.uuid.uuidString.lowercased()) else {
-			debugPrint("unknown characteristic"); return
+			DLog("unknown characteristic"); return
 		}
 		
 		
@@ -202,14 +223,14 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 		case .battery:
 			batteryStatus = 0
 			data.copyBytes(to: &(batteryStatus!), count: 1)
-			debugPrint("parsed battery \(batteryStatus!)")
+			DLog("parsed battery \(batteryStatus!)")
 			
 		case .status:
 			var buf = Array<UInt8>(repeating: 0, count: 4)
 			data.copyBytes(to: &buf, count: 3)
 			let intb = UnsafeRawPointer(buf).assumingMemoryBound(to: UInt.self).pointee.littleEndian
 			status = StatusOptions(rawValue: intb)
-			debugPrint("current opts \(status!)")
+			DLog("current opts \(status!)")
 		case .dateTime:
 			var buf = Array<UInt8>(repeating: 0, count: 5)
 			data.copyBytes(to: &buf, count: 5)
@@ -223,23 +244,23 @@ public final class CometBlueDevice : NSObject, CBPeripheralDelegate, Codable {
 											minute: Int(buf[0]),
 											second: 0)
 			deviceDate = calendar.date(from: components)
-			debugPrint("Parsed date \(deviceDate!)")
+			DLog("Parsed date \(deviceDate!)")
 		
 		case .temperatures:
 			var buf = Array<UInt8>(repeating: 0, count: 7)
 			data.copyBytes(to: &buf, count: 7)
 			temperatures = Temperatures(byteArray: buf)
-			debugPrint("Parsed temps: \(temperatures!)")
+			DLog("Parsed temps: \(temperatures!)")
 			
 		case .day:
 			dayBlob = data
-			debugPrint("Read day as blob \(data)")
+			DLog("Read day as blob \(data)")
 		case .holyday:
 			holydayBlob = data
-			debugPrint("Read holyday as blob \(data)")
+			DLog("Read holyday as blob \(data)")
 			
 		default:
-			print("Unhandled:"+data.hexDescription)
+			print("Unhandled: \(data) for \(internChar)")
 		}
 		
 		readsLeft.remove(internChar)
@@ -394,5 +415,10 @@ extension CometBlueDevice {
 		if let holyStr = try? container.decode(String.self, forKey: .holydayBlob) {
 			holydayBlob = Data(base64Encoded: holyStr)
 		}
+	}
+	
+	/// MARK: - Errors
+	public enum DeviceError : Error {
+		case notDiscovered(char : Characteristics)
 	}
 }

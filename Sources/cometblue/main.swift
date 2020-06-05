@@ -16,6 +16,7 @@ extension Data {
         return reduce("") {$0 + String(format: "%02x", $1)}
     }
 }
+
 func printUsage() {
 	let text = """
 	cometblue tool v0.1

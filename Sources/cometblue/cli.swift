@@ -64,6 +64,7 @@ class CLIProvider : NSObject, CBCentralManagerDelegate, CometBlueDeviceDelegate 
 		// parse option pairs
 		var i = optionsStartIndex
 		while i < args.count-1 {
+			DLog("Argument:\(args[i]) Value:\(args[i+1])")
 			options[args[i]] = args[i+1]
 			i = i+2
 		}
@@ -86,6 +87,7 @@ class CLIProvider : NSObject, CBCentralManagerDelegate, CometBlueDeviceDelegate 
 				throw CLIError.noValueToWrite
 			}
 			writeValue = args.last
+			DLog("writing '\(writeValue!)' to keypath:\(options["-k"]!)")
 		}
 		
 		super.init()
