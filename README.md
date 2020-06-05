@@ -3,7 +3,18 @@
 Command-line tool for macOS for managing CometBlue, EUROprog, Cygonix and other compatible BLE thermostats. Implemented in Swift using CoreBluetooth framework. Code is compatible with iOS
 
 ## Installation
-<will appear on homebrew>
+```
+git clone https://github.com/vaddieg/cometblue.git
+cd cometblue
+swift build -c release
+cp .build/release/cometblue /usr/local/bin
+```
+for iOS  (JB, ssh, ldid)  
+```
+cd Sources/cometblue
+./build_ios.sh
+scp cometblue root@your-jailbroken-iphone:/usr/bin/cometblue
+```
 
  ## Usage
  ```
