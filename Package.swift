@@ -6,7 +6,8 @@ import PackageDescription
 let package = Package(
     name: "cometblue",
 	platforms: [
-        .macOS(.v10_13),
+		.macOS(.v10_13),
+		//.iOS(.v13) doesn't work
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
