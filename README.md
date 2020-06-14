@@ -1,4 +1,7 @@
 #  CometBlue
+[![Platform](https://img.shields.io/badge/Platforms-macOS%20-4E4E4E.svg?colorA=28a745)](https://github.com/vaddieg/cometblue)
+[![Swift support](https://img.shields.io/badge/Swift-4.0%20%7C%204.2%20%7C%205.0%20%7C%205.1%20-lightgrey.svg?colorA=28a745&colorB=4E4E4E)](https://github.com/vaddieg/cometblue)
+[![Swift Package Manager compatible](https://img.shields.io/badge/SPM-compatible-brightgreen.svg?style=flat&colorA=28a745&&colorB=4E4E4E)](https://github.com/apple/swift-package-manager)
 
 Command-line tool for macOS for managing CometBlue, EUROprog, Cygonix and other compatible BLE thermostats. Implemented in Swift using CoreBluetooth framework. Code is compatible with iOS
 
