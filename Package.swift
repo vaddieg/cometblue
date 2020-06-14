@@ -9,6 +9,9 @@ let package = Package(
 		.macOS(.v10_13),
 		//.iOS(.v13) doesn't work
     ],
+    products: [
+        .executable(name: "cometblue", targets: ["cometblue"])
+    ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
